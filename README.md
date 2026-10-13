@@ -1,5 +1,5 @@
 # scQOI2 compressor
-scQOI2 is the successor to the previous scQOI compression algorithm, that applies a semi-sliding dictionary with Opcode RLE
+scQOI2 is the successor to the previous scQOI compression algorithm, that applies a semi-sliding dictionary with Opcode RLE. scQOI2 has proven to be usable on more complex data, such as XM files and repetitive text.
 
 ```
 SCQ2_OP_RUN (Code 00) - Declares a run of repeated symbols
