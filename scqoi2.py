@@ -102,8 +102,15 @@ def compress(data: bytes, do_diff: bool = True): # diff usually reduces size but
         found_match = False
         b = data[seek]
 
-        for length in reversed(sorted(set(table_item_lengths))): # SCQ2_OP_REF
-            if data[seek:seek+length] in bytes_table[1:]: # ignore oldest entry, it gets killed :3
+        possible_search = sorted(set(table_item_lengths+[len(byte_buffer)]), reverse=True) if byte_buffer else reversed(sorted(set(table_item_lengths), reverse=True))
+
+        for length in possible_search: # SCQ2_OP_REF
+            if bytes(byte_buffer) == data[seek:seek+length]:
+                byte_buffer = flush_to_table(byte_buffer, bytes_table, compressed_data, table_item_lengths)
+
+            search_window = bytes_table[1:] if byte_buffer else bytes_table # ignore oldest entry, if the buffer will be flushed
+
+            if data[seek:seek+length] in search_window:
                 found_match = True
                 chunk = data[seek:seek+length]
 
