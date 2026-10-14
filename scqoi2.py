@@ -183,6 +183,7 @@ def decompress(data: bytes):
 
         if dtype == 3: # SCQ2_OP_BYTES
             offset = seek+1
+            assert len(data) >= offset+pload+1, "Truncated Byte End!"
             byte_buffer = data[offset:offset+pload+1]
 
             decompressed_data.extend(byte_buffer)
@@ -198,14 +199,16 @@ def decompress(data: bytes):
             decompressed_data.extend(e)
 
         elif dtype == 1: # SCQ2_OP_DIFF
+            assert seek != 0, "SCQ2_OP_DIFF before any decoded data!"
             if pload > 31:
                 pload -= 64
-            bt = (prevbyte+pload) % 256
+            bt = (decompressed_data[-1]+pload) % 256
 
             prev_op = [dtype, pload]
             decompressed_data.append(bt)
 
         elif dtype == 0: # SCQ2_OP_RUN
+            assert prev_op is not None, "SCQ2_OP_RUN before without an eligable previous OP!"
             for _ in range(pload+1):
                 if prev_op[0] == 2:
                     decompressed_data.extend(prev_op[1])
@@ -213,6 +216,5 @@ def decompress(data: bytes):
                     decompressed_data.append((decompressed_data[-1]+prev_op[1])%256)
 
         seek+=1
-        prevbyte = decompressed_data[-1]
 
     return decompressed_data
